@@ -8,7 +8,7 @@ The example of Banuba SDK and Agora.io SDK integration to enable augmented reali
 
 ## Build Steps and Issues
 Please visit our documentation to get more info about the platform specific issues
- - https://docs.banuba.com/face-ar-sdk/unity/unity_getting_started
+ - https://docs.banuba.com/face-ar-sdk-v1/unity/unity_getting_started
  
 ## License
 
