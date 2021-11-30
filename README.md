@@ -1,6 +1,6 @@
-# Face AR SDK for Unity Videocall example   
+# Face AR SDK for Unity example  
   
-The example of Banuba SDK and Agora.io SDK integration to enable augmented reality filters in video calls for Unity.  
+The example of Banuba Face AR SDK integration for Unity.  
 
 ## Getting Started
 
