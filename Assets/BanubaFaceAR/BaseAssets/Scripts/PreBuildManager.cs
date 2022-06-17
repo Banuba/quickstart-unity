@@ -9,7 +9,12 @@ using UnityEditor.Build.Reporting;
 
 class PreBuildManager : IPreprocessBuildWithReport
 {
-    public int callbackOrder { get { return 0; } }
+    public int callbackOrder
+    {
+        get {
+            return 0;
+        }
+    }
 
     protected string streamingAssetsPath => Application.streamingAssetsPath + "/BanubaFaceAR/";
 
@@ -23,8 +28,7 @@ class PreBuildManager : IPreprocessBuildWithReport
     public void OnPreprocessBuild(BuildReport report)
     {
         var resourceDir = Application.dataPath + "/Resources";
-        if (!Directory.Exists(resourceDir))
-        {
+        if (!Directory.Exists(resourceDir)) {
             Directory.CreateDirectory(resourceDir);
         }
         files = new BNB.ResourcesJSON();
@@ -38,27 +42,27 @@ class PreBuildManager : IPreprocessBuildWithReport
     public void ProcessDirectory(string targetDirectory)
     {
         string[] fileEntries = Directory.GetFiles(targetDirectory);
-        foreach (string fileName in fileEntries)
-        {
+        foreach (string fileName in fileEntries) {
+            fileName.Replace(@"\\", @"/");
+            fileName.Replace(@"\", @"/");
             ProcessFile(fileName);
         }
 
         string[] subdirectoryEntries = Directory.GetDirectories(targetDirectory);
-        foreach (string subdirectory in subdirectoryEntries)
-        {
+        foreach (string subdirectory in subdirectoryEntries) {
             ProcessDirectory(subdirectory);
         }
-
     }
 
     public void ProcessFile(string path)
     {
-        if (Path.GetExtension(path) == ".meta")
-        {
+        if ((File.GetAttributes(path) & FileAttributes.Hidden) == FileAttributes.Hidden) {
+            return;
+        }
+        if (Path.GetExtension(path) == ".meta") {
             return;
         }
         files.resources.Add(path.Substring(streamingAssetsPath.Length));
-
     }
 }
 #endif

@@ -21,8 +21,8 @@ TagManager:
   - morph_draw
   - morph_uv
   - static_pos
-  - 
-  - 
+  - effect_canvas
+  - mask
   - 
   - 
   - 
@@ -41,4 +41,7 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: effect_result
+    uniqueID: 1709038313
     locked: 0

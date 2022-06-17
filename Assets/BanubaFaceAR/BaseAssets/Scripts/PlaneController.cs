@@ -10,13 +10,11 @@ namespace BNB
     public class PlaneController : MonoBehaviour
     {
         Resolution resolution;
-        public int cameraAngle
-        {
+        public int cameraAngle {
             get;
             private set;
         }
-        public bool camVerticalFlip
-        {
+        public bool camVerticalFlip {
             get;
             private set;
         }
@@ -37,6 +35,12 @@ namespace BNB
             BanubaSDKManager.instance.cameraDevice.onCameraTexture += OnCameraTexture;
             OnCameraTexture(BanubaSDKManager.instance.cameraDevice.cameraTexture, BanubaSDKManager.instance.cameraDevice.cameraTextureData);
         }
+
+        protected void OnDestroy()
+        {
+            BanubaSDKManager.instance.cameraDevice.onCameraTexture -= OnCameraTexture;
+        }
+
         void Update()
         {
             if (resolution.width != Screen.width || resolution.height != Screen.height) {

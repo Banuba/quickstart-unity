@@ -16,12 +16,11 @@ namespace BNB
         CameraDevice mCameraDevice;
         public CameraDevice cameraDevice
         {
-            get
-            {
+            get {
                 return mCameraDevice;
             }
-            private set
-            {
+        private
+            set {
                 mCameraDevice = value;
             }
         }
@@ -29,15 +28,16 @@ namespace BNB
         Recognizer mRecognizer;
         public Recognizer recognizer
         {
-            get
-            {
+            get {
                 return mRecognizer;
             }
-            private set
-            {
+        private
+            set {
                 mRecognizer = value;
             }
         }
+        public int currentFps { get; private set; }
+        private float timer, refresh = 1.0f;
         public volatile bool surfaceCreated = false;
 
         const int face_count = 1;
@@ -83,7 +83,7 @@ namespace BNB
 
             // set face search algorithm
             BanubaSDKBridge.bnb_recognizer_set_face_search_mode(
-                recognizer, BanubaSDKBridge.bnb_face_search_mode_t.bnb_good_for_first_face, out error);
+                recognizer, BanubaSDKBridge.bnb_face_search_mode_t.bnb_medium, out error);
             Utils.CheckError(error);
 
             var issupport = SystemInfo.SupportsRenderTextureFormat(RenderTextureFormat.ARGBHalf);
@@ -96,33 +96,20 @@ namespace BNB
             cameraDevice.onCameraImage += onCameraImage;
 #if UNITY_ANDROID && !UNITY_EDITOR
             var error = IntPtr.Zero;
-            if (BanubaSDKBridge.bnb_use_gpu_features(out error))
-            {
+            if (BanubaSDKBridge.bnb_use_gpu_features(out error)) {
                 Utils.CheckError(error);
 
                 Debug.Log("SystemInfo.graphicsMultiThreaded : " + SystemInfo.graphicsMultiThreaded);
-                if (SystemInfo.graphicsDeviceType != GraphicsDeviceType.OpenGLES3)
-                {
+                if (SystemInfo.graphicsDeviceType != GraphicsDeviceType.OpenGLES3) {
                     Debug.LogError("SystemInfo.graphicsDeviceType != GraphicsDeviceType.OpenGLES3. Please, remove other GL API from player settings");
                 }
 
-                if (SystemInfo.graphicsMultiThreaded)
-                {
+                if (SystemInfo.graphicsMultiThreaded) {
                     GL.IssuePluginEvent(Marshal.GetFunctionPointerForDelegate(new SurfaceCreatedRunFn(SurfaceCreated)), 0);
-                }
-                else
-                {
+                } else {
                     SurfaceCreated(0);
                 }
             }
-
-            AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
-            AndroidJavaClass bnbFileUtilClass = new AndroidJavaClass("com.banuba.utils.FileUtilsNN");
-            AndroidJavaObject activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
-            AndroidJavaObject context = activity.Call<AndroidJavaObject>("getApplicationContext");
-
-            bnbFileUtilClass.CallStatic("setContext", context);
-            bnbFileUtilClass.CallStatic("setResourcesBasePath", Application.persistentDataPath + "/BanubaFaceAR/android_nn");
 #endif
         }
 
@@ -135,6 +122,12 @@ namespace BNB
 
         void Update()
         {
+            float timelapse = Time.smoothDeltaTime;
+            timer = timer <= 0 ? refresh : timer -= timelapse;
+
+            if (timer <= 0) {
+                currentFps = (int) (1f / timelapse);
+            }
         }
 
         void onCameraImage(BanubaSDKBridge.bnb_bpc8_image_t image)

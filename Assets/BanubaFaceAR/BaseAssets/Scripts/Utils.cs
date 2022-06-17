@@ -9,7 +9,7 @@ namespace BNB
     {
         public static Matrix4x4 ArrayToMatrix4x4(float[] arr)
         {
-            Assert.AreEqual(arr.Length, 16);
+            //            Assert.AreEqual(arr.Length, 16);
             var mat = new Matrix4x4();
             for (int i = 0; i < 16; i += 4) {
                 mat.SetColumn(i / 4, new Vector4(arr[i], arr[i + 1], arr[i + 2], arr[i + 3]));

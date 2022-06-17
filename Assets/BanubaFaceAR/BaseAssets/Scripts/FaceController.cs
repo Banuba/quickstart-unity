@@ -16,6 +16,11 @@ namespace BNB
             BanubaSDKManager.instance.onRecognitionResult += onRecognitionResult;
         }
 
+        protected void OnDestroy()
+        {
+            BanubaSDKManager.instance.onRecognitionResult -= onRecognitionResult;
+        }
+
         void onRecognitionResult(FrameData frameData)
         {
             var error = IntPtr.Zero;
@@ -26,12 +31,9 @@ namespace BNB
 
             var face = BanubaSDKBridge.bnb_frame_data_get_face(frameData, faceIndex, out error);
             Utils.CheckError(error);
-            if (face.rectangle.hasFaceRectangle > 0)
-            {
+            if (face.rectangle.hasFaceRectangle > 0) {
                 gameObject.SetActive(true);
-            }
-            else
-            {
+            } else {
                 gameObject.SetActive(false); // hide when no face detected
                 return;
             }

@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 using UnityEngine.UI;
 
 namespace BNB
@@ -24,20 +25,11 @@ namespace BNB
             BanubaSDKManager.instance.onRecognitionResult += onRecognitionResult;
         }
 
-        void Update()
+        private void OnDestroy()
         {
-            // Update fps meter text every second
-            if(fpsTextObj != null)
-            {
-                if (Time.unscaledTime > timer)
-                {
-                    int fps = (int)(1f / Time.unscaledDeltaTime);
-                    fpsTextObj.text = "FPS: " + fps;
-                    timer = Time.unscaledTime + refreshRate;
-                }
-            }
-
+            BanubaSDKManager.instance.onRecognitionResult -= onRecognitionResult;
         }
+
         void onRecognitionResult(FrameData frameData)
         {
             var error = IntPtr.Zero;

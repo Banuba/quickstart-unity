@@ -53,17 +53,14 @@ namespace BNB
         public struct bnb_recognizer_features_id_t
         {
             public ulong frx;
-            public ulong sight_direction;
             public ulong ruler;
             public ulong eye_state;
-            public ulong light_direction;
             public ulong open_mouth;
             public ulong smile;
             public ulong raised_brows;
             public ulong shifted_brows;
             public ulong background_squared;
             public ulong occlusion_mask;
-            public ulong image_brightness;
             public ulong action_units;
         };
 
@@ -194,7 +191,7 @@ namespace BNB
             public IntPtr emotions; // float*
         };
 
-            /**
+        /**
     * Static face data
     */
         [StructLayout(LayoutKind.Sequential)]
@@ -297,7 +294,7 @@ namespace BNB
 
         public enum bnb_face_search_mode_t {
             bnb_fast,
-            bnb_good_for_first_face,
+            bnb_medium,
             bnb_good
         }
         ;
@@ -439,6 +436,16 @@ namespace BNB
      */
         [DllImport(pluginname, CallingConvention = CallingConvention.Cdecl)]
         public static extern void bnb_recognizer_insert_feature(IntPtr recognizer, ulong feature, out IntPtr /* bnb_error** */ error);
+
+
+        /**
+    * Disable provided features in processing pipeline
+    * @param recognizer instance
+    * @param features array of feature id's to enable
+    * @param features_count features array size
+    */
+        [DllImport(pluginname, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void bnb_recognizer_remove_feature(IntPtr recognizer, ulong feature, out IntPtr /* bnb_error** */ error);
 
         /**
      * Set maximum count of faces to detect. 1 by default

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using UnityEngine;
+using UnityEngine.Video;
 
 namespace BNB
 {
@@ -16,6 +17,7 @@ namespace BNB
 
         protected Material meshMaterial;
         CameraDevice.CameraTextureData cameraTextureData;
+        VideoPlayer videoPlayer => GetComponent<VideoPlayer>();
 
         // Start is called before the first frame update
         void Start()
@@ -25,8 +27,12 @@ namespace BNB
 
             BanubaSDKManager.instance.onRecognitionResult += onRecognitionResult;
             BanubaSDKManager.instance.cameraDevice.onCameraTexture += OnCameraTexture;
-
             meshMaterial = GetComponent<Renderer>().material;
+            if (videoPlayer) {
+                videoPlayer.sendFrameReadyEvents = true;
+                videoPlayer.frameReady += OnVideoTexture;
+                meshMaterial.SetInt("_EnableMakeup", 0);
+            }
             OnCameraTexture(BanubaSDKManager.instance.cameraDevice.cameraTexture, BanubaSDKManager.instance.cameraDevice.cameraTextureData);
         }
         void OnCameraTexture(Texture2D tex, CameraDevice.CameraTextureData cameraTextureData)
@@ -37,6 +43,19 @@ namespace BNB
 
             this.cameraTextureData = cameraTextureData;
             GetComponent<Renderer>().material.mainTexture = tex;
+        }
+
+        void OnVideoTexture(VideoPlayer source, long frameIdx)
+        {
+            meshMaterial.SetInt("_EnableMakeup", 1);
+            videoPlayer.sendFrameReadyEvents = false;
+            videoPlayer.frameReady -= OnVideoTexture;
+        }
+
+        protected void OnDestroy()
+        {
+            BanubaSDKManager.instance.onRecognitionResult -= onRecognitionResult;
+            BanubaSDKManager.instance.cameraDevice.onCameraTexture -= OnCameraTexture;
         }
 
         void onRecognitionResult(FrameData frameData)

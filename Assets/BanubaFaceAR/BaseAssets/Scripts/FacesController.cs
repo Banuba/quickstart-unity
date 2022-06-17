@@ -19,6 +19,11 @@ namespace BNB
             BanubaSDKManager.instance.onRecognitionResult += onRecognitionResult;
         }
 
+        protected void OnDestroy()
+        {
+            BanubaSDKManager.instance.onRecognitionResult -= onRecognitionResult;
+        }
+
         void onRecognitionResult(FrameData frameData)
         {
             var error = IntPtr.Zero;
@@ -31,8 +36,7 @@ namespace BNB
             var face_count = BanubaSDKBridge.bnb_frame_data_get_face_count(frameData, out error);
             Utils.CheckError(error);
             InstantiateFaces(face_count);
-            if(onInstanciateFace != null)
-            {
+            if (onInstanciateFace != null) {
                 onInstanciateFace(face_count);
             }
         }
@@ -44,7 +48,8 @@ namespace BNB
                 Array.Resize(ref faces, face_count);
                 for (int i = len; i < face_count; ++i) {
                     faces[i] = GameObject.Instantiate(faces[0], transform);
-                    faces [i].SetActive(true);
+                    faces[i]
+                        .SetActive(true);
                     faces[i].name = "Face" + i;
 
                     var faceController = faces[i].GetComponent<FaceController>();

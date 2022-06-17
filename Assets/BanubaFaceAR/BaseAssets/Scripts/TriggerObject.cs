@@ -1,7 +1,8 @@
 ﻿using System;
 using UnityEngine;
 
-namespace BNB {
+namespace BNB
+{
     /// <summary>
     /// This class realised triggers based on facial expressions
     /// </summary>.
@@ -27,20 +28,16 @@ namespace BNB {
             Utils.CheckError(error);
             bool isBrowsShifted = BanubaSDKBridge.bnb_frame_data_get_is_brows_shifted(frameData, out error);
             Utils.CheckError(error);
-            if (isOpen)
-            {
+            if (isOpen) {
                 OnMouthOpen();
             }
-            if (isSmile)
-            {
+            if (isSmile) {
                 IsSmile();
             }
-            if (isBrowsRaised)
-            {
+            if (isBrowsRaised) {
                 IsBrowsRaised();
             }
-            if (isBrowsShifted)
-            {
+            if (isBrowsShifted) {
                 IsBrowsShifted();
             }
         }
@@ -63,18 +60,26 @@ namespace BNB {
         /// <summary>
         /// This method do something if mouth is open
         /// </summary>
-        protected virtual void OnMouthOpen() { }
+        protected virtual void OnMouthOpen()
+        {
+        }
         /// <summary>
         /// This method do something if smiles
         /// </summary>
-        protected virtual void IsSmile() { }
+        protected virtual void IsSmile()
+        {
+        }
         /// <summary>
         /// This method do something if brows are raised
         /// </summary>
-        protected virtual void IsBrowsRaised() { }
+        protected virtual void IsBrowsRaised()
+        {
+        }
         /// <summary>
         /// This method do something if brows are shifted
         /// </summary>
-        protected virtual void IsBrowsShifted() { }
+        protected virtual void IsBrowsShifted()
+        {
+        }
     }
 }

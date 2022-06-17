@@ -36,7 +36,7 @@ namespace BNB
             if (dynamicRatio != 0.0f) {
                 for (int i = 0; i < springBones.Length; i++) {
                     if (dynamicRatio > springBones[i].threshold) {
-                        springBones [i]
+                        springBones[i]
                             .UpdateSpring();
                     }
                 }
@@ -56,7 +56,7 @@ namespace BNB
             var end = curve.keys[curve.length - 1].time;
             //var step	= (end - start) / (springBones.Length - 1);
 
-            var prop = springBones [0]
+            var prop = springBones[0]
                            .GetType()
                            .GetField(fieldName, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public);
 
