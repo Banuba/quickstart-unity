@@ -1,4 +1,4 @@
-[![](https://www.banuba.com/hubfs/Banuba_November2018/Images/Banuba%20SDK.png)](https://docs.banuba.com/face-ar-sdk-v1/web/web_overview)
+[![](https://www.banuba.com/hubfs/Banuba_November2018/Images/Banuba%20SDK.png)]([https://docs.banuba.com/face-ar-sdk-v1/web/web_overview](https://docs.banuba.com/face-ar-sdk-v1/unity/unity_overview)
 
 ## Face AR SDK for Unity example  
   
