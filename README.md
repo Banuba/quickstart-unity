@@ -19,6 +19,5 @@ Feel free to [contact us](https://www.banuba.com/facear-sdk/face-filters#form) i
 3. Put your Client Token to the [Assets/BanubaFaceAR/BaseAssets/Resources/BanubaClientToken.txt](Assets/BanubaFaceAR/BaseAssets/Resources/BanubaClientToken.txt)
 4. Open the MinimalScene or the SampleScene and click Run.
 
-## Build Steps and Issues
 ### Docs
 You can find more info [here](https://docs.banuba.com/face-ar-sdk-v1/unity/unity_getting_started)
