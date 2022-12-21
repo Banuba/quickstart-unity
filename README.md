@@ -1,22 +1,24 @@
-# Face AR SDK for Unity example  
-  
-**Important**  
-Please use [v0.x](../../tree/v0.x) branch for SDK version 0.x (e.g. v0.38).  
+[![](https://www.banuba.com/hubfs/Banuba_November2018/Images/Banuba%20SDK.png)](https://docs.banuba.com/face-ar-sdk-v1/web/web_overview)
+
+## Face AR SDK for Unity example  
   
 The example of Banuba Face AR SDK integration for Unity.  
 
-## Getting Started
+## Usage
+### Token
+Before you commit to a license, you are free to test all the features of the SDK for free. To start it, [send us a message](https://www.banuba.com/facear-sdk/face-filters#form).  
+We will get back to you with the trial token.
+You can store the token within the app.  
 
-1) Get the latest Banuba SDK archive for Unity and the client token. Please fill in our form on banuba.com website, or contact us via info@banuba.com. 
-2) Copy and Past BanubaSDK/Assets/StreamingAssets and Copy and Past BanubaSDK/Assets/Plugins to the quickstart-unity/Assets/ folder.
-3) Put your Client Token to the quickstart-unity/Assets/BanubaFaceAR/BaseAssets/Resources/BanubaClientToken.txt
-3) Open the MinimalScene or the SampleScene and click Run.
+Feel free to [contact us](https://www.banuba.com/facear-sdk/face-filters#form) if you have any questions.
+
+### Getting Started
+
+1. Clone the repository
+2. Copy and Past BanubaSDK/Assets/StreamingAssets and Copy and Past BanubaSDK/Assets/Plugins to the quickstart-unity/Assets/ folder.
+3. Put your Client Token to the [Assets/BanubaFaceAR/BaseAssets/Resources/BanubaClientToken.txt](Assets/BanubaFaceAR/BaseAssets/Resources/BanubaClientToken.txt)
+4. Open the MinimalScene or the SampleScene and click Run.
 
 ## Build Steps and Issues
-
-Please visit our documentation to get more info about the platform specific issues
- - https://docs.banuba.com/face-ar-sdk-v1/unity/unity_getting_started
- 
-## License
-
-MIT
+### Docs
+You can find more info [here](https://docs.banuba.com/face-ar-sdk-v1/unity/unity_getting_started)
