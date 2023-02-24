@@ -354,8 +354,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 309e68e54c61b4caaa694c9484bfc15c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  scene: BanubaSDKDemo
-  loadingText: {fileID: 1004049303}
+  _scene: BanubaSDKDemo
+  _loadingText: {fileID: 1004049303}
 --- !u!114 &2039785751
 MonoBehaviour:
   m_ObjectHideFlags: 0

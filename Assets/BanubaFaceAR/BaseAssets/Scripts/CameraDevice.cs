@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using UnityEngine;
-
 #if UNITY_ANDROID && !UNITY_EDITOR
 using UnityEngine.Android;
 #endif
@@ -13,40 +10,45 @@ using UnityEngine.iOS;
 namespace BNB
 {
     [DisallowMultipleComponent]
-    [RequireComponent(typeof(Camera))]
     public class CameraDevice : MonoBehaviour
     {
-        public struct CameraTextureData
-        {
-            public bool isVerticallyFlipped;
-            public int Angle;
-        }
-        Color32[] data;
-        Color32Pinner dataPinner;
-
-        WebCamTexture mWebCamTexture;
-        private WebCamTexture webCamTexture
-        {
-            get {
-                return mWebCamTexture;
-            }
-            set {
-                mWebCamTexture = value;
-            }
-        }
-        public CameraTextureData cameraTextureData;
-
-        BanubaSDKBridge.bnb_bpc8_image_t cameraImage;
-        public Texture2D cameraTexture;
-        public bool isLocal = false;
-        public Texture2D localTexture;
-        private int texSize;
-
         public event Action<BanubaSDKBridge.bnb_bpc8_image_t> onCameraImage;
         public event Action<Texture2D, CameraTextureData> onCameraTexture;
 
-        void Awake()
+        public static CameraDevice instance;
+
+        public bool isLocal;
+        public CameraTextureData cameraTextureData;
+        private Texture2D _cameraTexture;
+        [SerializeField]
+        private Texture2D localTexture;
+
+        private int _texSize = 0;
+        private bool _dataChanged = false;
+        private Color32[] _data;
+        private Color32[] _prevData;
+        private Color32Pinner _dataPinner;
+        private WebCamTexture _webCamTexture;
+        private BanubaSDKBridge.bnb_bpc8_image_t _cameraImage;
+
+        public Texture2D CameraTexture => _cameraTexture;
+
+        public struct CameraTextureData
         {
+            public bool isVerticallyFlipped;
+            public bool isRotated90; // clockwise
+            public int angle;
+        }
+
+        private void Awake()
+        {
+            _cameraTexture = new Texture2D(1, 1, TextureFormat.RGBA32, false);
+            if (instance == null) {
+                instance = this;
+            } else {
+                return;
+            }
+
 #if UNITY_ANDROID && !UNITY_EDITOR
             if (!Permission.HasUserAuthorizedPermission(Permission.Camera)) {
                 Permission.RequestUserPermission(Permission.Camera);
@@ -67,9 +69,9 @@ namespace BNB
         }
 #endif
 
-        void Update()
+        private void Update()
         {
-            if (webCamTexture == null) {
+            if (_webCamTexture == null) {
 #if UNITY_ANDROID && !UNITY_EDITOR
                 if (Permission.HasUserAuthorizedPermission(Permission.Camera)) {
                     OpenCameraDevice();
@@ -85,23 +87,23 @@ namespace BNB
             UpdateCameraImage();
 
 #else
-            if (webCamTexture.didUpdateThisFrame) {
+            if (_webCamTexture.didUpdateThisFrame) {
                 UpdateCameraImage();
             }
 #endif
         }
 
-        void OnDestroy()
+        private void OnDestroy()
         {
-            if (webCamTexture != null) {
-                webCamTexture.Stop();
-                webCamTexture = null;
+            if (_webCamTexture != null) {
+                _webCamTexture.Stop();
+                _webCamTexture = null;
             }
         }
 
         private void OpenCameraDevice()
         {
-            String deviceName = null;
+            string deviceName = null;
 
             Debug.Log("Webcam's available: ");
             foreach (WebCamDevice device in WebCamTexture.devices) {
@@ -121,133 +123,122 @@ namespace BNB
 
             if (WebCamTexture.devices.Length > 0) {
                 if (deviceName != null) {
-                    webCamTexture = new WebCamTexture(deviceName);
+                    _webCamTexture = new WebCamTexture(deviceName);
                 } else {
                     // default device
-                    webCamTexture = new WebCamTexture();
+                    _webCamTexture = new WebCamTexture();
                 }
-                webCamTexture.requestedFPS = 30;
-                webCamTexture.Play();
+                _webCamTexture.requestedFPS = 30;
+                _webCamTexture.Play();
             }
 
-            if (webCamTexture == null) {
+            if (_webCamTexture == null) {
                 Debug.Log("Camera creation error!");
                 return;
             }
-            cameraImage = new BanubaSDKBridge.bnb_bpc8_image_t();
-            cameraImage.format = new BanubaSDKBridge.bnb_image_format_t();
 
-            UpdateTexture();
+            _cameraImage = new BanubaSDKBridge.bnb_bpc8_image_t {
+                format = new BanubaSDKBridge.bnb_image_format_t()
+            };
+            _data = new Color32[_texSize];
             UpdateCameraImage();
-        }
-
-        private void UpdateEmptyImage()
-        {
-            Debug.Log("UpdateEmptyImage");
-            Texture2D texture = Texture2D.blackTexture;
-            data = new Color32[texture.width * texture.height];
-            dataPinner = new Color32Pinner(data);
-            data = texture.GetPixels32();
-            if (cameraTexture) {
-                UnityEngine.Object.Destroy(cameraTexture);
-            }
-
-            cameraTexture = new Texture2D(texture.width, texture.height, TextureFormat.RGBA32, false);
-            cameraTexture.SetPixels32(data);
-            cameraTexture.Apply();
-            if (data == null) {
-                Debug.Log("ERROR: GetPixels32 return not valid data (null)");
-                return;
-            }
-
-            cameraImage.format.orientation = angleToOrientation(cameraTextureData.Angle);
-            cameraImage.format.require_mirroring = 1; // selfie mode: true
-            cameraImage.format.face_orientation = 0;
-
-            cameraImage.format.width = (uint) texture.width;
-            cameraImage.format.height = (uint) texture.height;
-            dataPinner = new Color32Pinner(texture.GetPixels32()); // texture passed to FRX HERE
-
-            cameraImage.data = dataPinner; // Use the operator to retrieve the IntPtr
-            cameraImage.pixel_format = BanubaSDKBridge.bnb_pixel_format_t.BNB_RGBA;
-
-            onCameraImage?.Invoke(cameraImage);
         }
 
         private void UpdateCameraImage()
         {
-            bool dataChanged = cameraTextureData.Angle != webCamTexture.videoRotationAngle
-                               || cameraTextureData.isVerticallyFlipped != webCamTexture.videoVerticallyMirrored;
+            updateCameraTexture();
+            if (_prevData != null && _prevData.Length == (CameraTexture.width * CameraTexture.height)) {
+                CameraTexture.SetPixels32(_prevData);
+                CameraTexture.Apply();
+            }
 
-            cameraTextureData.Angle = webCamTexture.videoRotationAngle;
-            cameraTextureData.isVerticallyFlipped = webCamTexture.videoVerticallyMirrored;
-            texSize = (isLocal ? localTexture.width * localTexture.height : webCamTexture.width * webCamTexture.height);
-            if (texSize != data.Length || dataChanged) {
-                UpdateTexture();
+            _dataChanged = cameraTextureData.angle != _webCamTexture.videoRotationAngle
+                           || cameraTextureData.isVerticallyFlipped != _webCamTexture.videoVerticallyMirrored;
+            cameraTextureData.angle = _webCamTexture.videoRotationAngle;
+            cameraTextureData.isVerticallyFlipped = cameraTextureData.angle == 90 || cameraTextureData.angle == 180;
+            cameraTextureData.isRotated90 = cameraTextureData.angle == 90 || cameraTextureData.angle == 270;
+            _texSize = (isLocal ? localTexture.width * localTexture.height : _webCamTexture.width * _webCamTexture.height);
+            if (_texSize != _data.Length || _dataChanged) {
+                _texSize = (isLocal ? localTexture.width * localTexture.height : _webCamTexture.width * _webCamTexture.height);
+                _data = new Color32[_texSize];
+                _dataPinner = new Color32Pinner(_data);
             }
 
             if (isLocal) {
-                data = localTexture.GetPixels32();
+                _data = localTexture.GetPixels32();
             } else {
-                webCamTexture.GetPixels32(data); // NOTE: pixels are vertically flipped according to documentation
+                _webCamTexture.GetPixels32(_data);
             }
-            cameraTexture.SetPixels32(data);
-            cameraTexture.Apply();
-            if (data == null) {
+
+            if (_data == null) {
                 Debug.Log("ERROR: GetPixels32 return not valid data (null)");
                 return;
             }
 
-            cameraImage.format.orientation = angleToOrientation(cameraTextureData.Angle);
-            cameraImage.format.require_mirroring = 1; // selfie mode: true
-            cameraImage.format.face_orientation = 0;
+            _cameraImage.format.orientation = AngleToOrientation(cameraTextureData.angle);
+            _cameraImage.format.require_mirroring = 1; // selfie mode: true
+            _cameraImage.format.face_orientation = 0;
             if (isLocal) {
-                cameraImage.format.width = (uint) localTexture.width;
-                cameraImage.format.height = (uint) localTexture.height;
-                dataPinner = new Color32Pinner(localTexture.GetPixels32()); // texture passed to FRX HERE
+                _cameraImage.format.width = (uint) localTexture.width;
+                _cameraImage.format.height = (uint) localTexture.height;
+                _dataPinner = new Color32Pinner(localTexture.GetPixels32()); // texture passed to FRX HERE
             } else {
-                cameraImage.format.width = (uint) webCamTexture.width;
-                cameraImage.format.height = (uint) webCamTexture.height;
+                _cameraImage.format.width = (uint) _webCamTexture.width;
+                _cameraImage.format.height = (uint) _webCamTexture.height;
             }
-            cameraImage.data = dataPinner; // Use the operator to retrieve the IntPtr
-            cameraImage.pixel_format = BanubaSDKBridge.bnb_pixel_format_t.BNB_RGBA;
+            _cameraImage.data = _dataPinner; // Use the operator to retrieve the IntPtr
+            _cameraImage.pixel_format = BanubaSDKBridge.bnb_pixel_format_t.BNB_RGBA;
 
-            if (onCameraImage != null) {
-                onCameraImage(cameraImage);
-            }
+            BanubaSDKManager.processCameraImage(_cameraImage);
+            storePixels();
         }
 
-        private void UpdateTexture()
+        private void storePixels()
         {
-            texSize = (isLocal ? localTexture.width * localTexture.height : webCamTexture.width * webCamTexture.height);
-            data = new Color32[texSize];
-            dataPinner = new Color32Pinner(data);
-            if (cameraTexture != null) {
-                UnityEngine.Object.Destroy(cameraTexture);
+            if (_prevData == null || _prevData.Length != _data.Length) {
+                _prevData = new Color32[_data.Length];
+            }
+            _data.CopyTo(_prevData, 0);
+        }
+
+        private void updateCameraTexture()
+        {
+            if (_prevData == null || (!_dataChanged && _prevData.Length == (CameraTexture.width * CameraTexture.height))) {
+                return;
+            }
+
+            if (CameraTexture != null) {
+                Destroy(CameraTexture);
             }
 
             if (isLocal) {
-                cameraTexture = new Texture2D(localTexture.width, localTexture.height, TextureFormat.RGBA32, false);
-                cameraTexture.SetPixels32(localTexture.GetPixels32());
+                _cameraTexture = new Texture2D(localTexture.width, localTexture.height, TextureFormat.RGBA32, false);
+                CameraTexture.SetPixels32(localTexture.GetPixels32());
             } else {
-                cameraTexture = new Texture2D(webCamTexture.width, webCamTexture.height, TextureFormat.RGBA32, false);
+                _cameraTexture = new Texture2D(_webCamTexture.width, _webCamTexture.height, TextureFormat.RGBA32, false);
             }
-            if (onCameraTexture != null) {
-                onCameraTexture(cameraTexture, cameraTextureData);
-            }
+            onCameraTexture?.Invoke(CameraTexture, cameraTextureData);
         }
 
-        void OnApplicationPause(bool pauseStatus)
+        private void OnApplicationPause(bool pauseStatus)
         {
+            if (_webCamTexture == null) {
+                return;
+            }
             if (pauseStatus) {
-                webCamTexture.Stop();
-                UpdateEmptyImage();
+                _webCamTexture.Stop();
             } else {
-                webCamTexture.Play();
+                _webCamTexture.Play();
             }
         }
 
-        private BanubaSDKBridge.bnb_image_orientation_t angleToOrientation(int angle)
+        public void CallCameraEvents()
+        {
+            onCameraImage?.Invoke(_cameraImage);
+            onCameraTexture?.Invoke(CameraTexture, cameraTextureData);
+        }
+
+        private BanubaSDKBridge.bnb_image_orientation_t AngleToOrientation(int angle)
         {
             switch (angle) {
                 // swap for 180 and 0 due to unity Texture2D.GetPixels32 return vertically flipped image

@@ -1,39 +1,45 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using UnityEngine;
+﻿using UnityEngine;
 
-namespace BNB
+namespace BNB.Morphing
 {
     public class MorphDraw : MonoBehaviour
     {
-        public int iteration;
-        public RenderToTexture uv_morph;
-        public RenderToTexture static_pos;
+        // Cached shader properties
+        private readonly int _DrawID = Shader.PropertyToID("_DrawID");
+        private readonly int _UVMorphTex = Shader.PropertyToID("_UVMorphTex");
+        private readonly int _StaticPosTex = Shader.PropertyToID("_StaticPosTex");
 
-        protected Material meshMaterial;
+        private int _iteration;
+        private RenderToTexture _uvMorph;
+        private Texture _staticPos;
+        private Material _meshMaterial;
 
-        ////// Start is called before the first frame update
-        //void Start()
-        //{
-        //    Init();
-        //}
-
-        public void Init()
+        private void OnEnable()
         {
-            meshMaterial = GetComponent<Renderer>().material;
-            GetComponent<Renderer>().sortingOrder = 9 - iteration;
+            BanubaSDKManager.instance.onRecognitionResult += UpdateMaterial;
         }
+
         private void OnDisable()
         {
-            Destroy(this.gameObject);
+            BanubaSDKManager.instance.onRecognitionResult -= UpdateMaterial;
+            Destroy(gameObject);
         }
-        private void Update()
+
+        public void Create(RenderToTexture uvMorph, Texture staticPos, int iteration)
         {
-            meshMaterial.SetInt("_DrawID", iteration);
-            meshMaterial.SetTexture("_UVMorphTex", uv_morph.texture);
-            meshMaterial.SetTexture("_StaticPosTex", static_pos.texture);
+            _iteration = iteration;
+            _uvMorph = uvMorph;
+            _staticPos = staticPos;
+            var rendererComponent = GetComponent<Renderer>();
+            rendererComponent.sortingOrder = 9 - _iteration;
+            _meshMaterial = rendererComponent.material;
+        }
+
+        private void UpdateMaterial(FrameData data)
+        {
+            _meshMaterial.SetInt(_DrawID, _iteration);
+            _meshMaterial.SetTexture(_UVMorphTex, _uvMorph.texture);
+            _meshMaterial.SetTexture(_StaticPosTex, _staticPos);
         }
     }
 }

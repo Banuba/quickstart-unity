@@ -1,24 +1,17 @@
 ﻿#if UNITY_EDITOR
-using System;
 using System.IO;
-using System.Collections;
-using UnityEngine;
+using BNB;
 using UnityEditor;
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
+using UnityEngine;
 
 class PreBuildManager : IPreprocessBuildWithReport
 {
-    public int callbackOrder
-    {
-        get {
-            return 0;
-        }
-    }
+    private ResourcesJSON _files;
 
-    protected string streamingAssetsPath => Application.streamingAssetsPath + "/BanubaFaceAR/";
-
-    protected BNB.ResourcesJSON files;
+    public int callbackOrder => 0;
+    private readonly string _streamingAssetsPath = Application.streamingAssetsPath + "/BanubaFaceAR/";
 
     public void OnPreprocessBuild(BuildTarget target, string path)
     {
@@ -31,21 +24,20 @@ class PreBuildManager : IPreprocessBuildWithReport
         if (!Directory.Exists(resourceDir)) {
             Directory.CreateDirectory(resourceDir);
         }
-        files = new BNB.ResourcesJSON();
+        _files = new ResourcesJSON();
 
         var file = resourceDir + "/BNBResourceList.json";
-        ProcessDirectory(streamingAssetsPath);
+        ProcessDirectory(_streamingAssetsPath);
 
-        File.WriteAllText(file, files.SaveToString());
+        File.WriteAllText(file, _files.SaveToString());
     }
 
-    public void ProcessDirectory(string targetDirectory)
+    private void ProcessDirectory(string targetDirectory)
     {
         string[] fileEntries = Directory.GetFiles(targetDirectory);
         foreach (string fileName in fileEntries) {
-            fileName.Replace(@"\\", @"/");
-            fileName.Replace(@"\", @"/");
-            ProcessFile(fileName);
+            var fixedFileName = fileName.Replace(@"\\", @"/").Replace(@"\", @"/");
+            ProcessFile(fixedFileName);
         }
 
         string[] subdirectoryEntries = Directory.GetDirectories(targetDirectory);
@@ -54,15 +46,13 @@ class PreBuildManager : IPreprocessBuildWithReport
         }
     }
 
-    public void ProcessFile(string path)
+    private void ProcessFile(string path)
     {
-        if ((File.GetAttributes(path) & FileAttributes.Hidden) == FileAttributes.Hidden) {
+        if ((File.GetAttributes(path) & FileAttributes.Hidden) == FileAttributes.Hidden
+            || Path.GetExtension(path) == ".meta") {
             return;
         }
-        if (Path.GetExtension(path) == ".meta") {
-            return;
-        }
-        files.resources.Add(path.Substring(streamingAssetsPath.Length));
+        _files.resources.Add(path.Substring(_streamingAssetsPath.Length));
     }
 }
 #endif

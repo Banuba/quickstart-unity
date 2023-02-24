@@ -1,22 +1,28 @@
 Shader "Unlit/MovieAlphaIsBlack"
 {
-    Properties{
-        _MainTex("Base (RGB)", 2D) = "white" {} _Threshold("Cutout threshold", Range(0, 1)) = 0.1 _Softness("Cutout softness", Range(0, 0.5)) = 0.0} SubShader
+    Properties
     {
-        Tags{"RenderType" =
-                 "Transparent"
-                 "Queue" = "Transparent"} LOD 100
+        _MainTex("Base (RGB)", 2D) = "white" {} _Threshold("Cutout threshold", Range(0, 1)) = 0.1 _Softness("Cutout softness", Range(0, 0.5)) = 0.0
+    } SubShader
+    {
+        Tags
+        {
+            "RenderType" =
+            "Transparent"
+            "Queue" = "Transparent"
+        }
+        LOD 100
 
-            ZWrite Off
-                Blend SrcAlpha OneMinusSrcAlpha
+        ZWrite Off
+        Blend SrcAlpha OneMinusSrcAlpha
 
-                    Pass
+        Pass
         {
             CGPROGRAM
-#pragma vertex vert
-#pragma fragment frag
+            #pragma vertex vert
+            #pragma fragment frag
 
-#include "UnityCG.cginc"
+            #include "UnityCG.cginc"
 
             struct appdata
             {
@@ -44,9 +50,8 @@ Shader "Unlit/MovieAlphaIsBlack"
             }
 
             fixed4 frag(v2f i)
-                : SV_Target
+            : SV_Target
             {
-                // sample the texture
                 fixed4 col = tex2D(_MainTex, i.uv);
                 col.a = smoothstep(_Threshold, _Threshold + _Softness, 0.333 * (col.r + col.g + col.b));
                 return col;

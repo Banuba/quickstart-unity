@@ -9,7 +9,6 @@ namespace BNB
     {
         public static Matrix4x4 ArrayToMatrix4x4(float[] arr)
         {
-            //            Assert.AreEqual(arr.Length, 16);
             var mat = new Matrix4x4();
             for (int i = 0; i < 16; i += 4) {
                 mat.SetColumn(i / 4, new Vector4(arr[i], arr[i + 1], arr[i + 2], arr[i + 3]));
@@ -29,10 +28,10 @@ namespace BNB
         }
 
         /**
-     * Check if error isn't null and thow an exception in other case.
-     * @param error instanse of `bnb_error*`
-     */
-        public static void CheckError(IntPtr /* const bnb_error* */ error)
+         * Check if error isn't null and thow an exception in other case.
+         * @param error instanse of `bnb_error*`
+         */
+        public static void CheckError(IntPtr error)
         {
             if (error != IntPtr.Zero) {
                 var message = Marshal.PtrToStringAnsi(BanubaSDKBridge.bnb_error_get_message(error));

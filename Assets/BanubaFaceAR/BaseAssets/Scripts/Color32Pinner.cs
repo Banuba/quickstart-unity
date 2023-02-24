@@ -6,7 +6,7 @@ namespace BNB
 {
     public class Color32Pinner
     {
-        GCHandle _pinnedArray;
+        private GCHandle _pinnedArray;
 
         public Color32Pinner(Color32[] obj)
         {

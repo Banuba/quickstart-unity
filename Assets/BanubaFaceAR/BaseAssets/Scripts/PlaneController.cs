@@ -1,99 +1,92 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using System.Runtime.InteropServices;
 
 namespace BNB
 {
     public class PlaneController : MonoBehaviour
     {
-        Resolution resolution;
-        public int cameraAngle {
-            get;
-            private set;
-        }
-        public bool camVerticalFlip {
-            get;
-            private set;
-        }
-        private bool getRotated = false;
-        private RawImage image;
+        private bool _getRotated;
+        private Resolution _resolution;
+        private RawImage _image;
+        private RectTransform _rectTransform;
 
-        // Start is called before the first frame update
-        void Start()
+        public int cameraAngle { get; private set; }
+        private bool _camVerticalFlip { get; set; }
+
+        private void Start()
         {
             if (BanubaSDKManager.instance == null) {
                 return;
             }
-            image = GetComponent<RawImage>();
+            _image = GetComponent<RawImage>();
+            _rectTransform = GetComponent<RectTransform>();
 
-            resolution.width = Screen.width;
-            resolution.height = Screen.height;
+            _resolution.width = Screen.width;
+            _resolution.height = Screen.height;
 
-            BanubaSDKManager.instance.cameraDevice.onCameraTexture += OnCameraTexture;
-            OnCameraTexture(BanubaSDKManager.instance.cameraDevice.cameraTexture, BanubaSDKManager.instance.cameraDevice.cameraTextureData);
+            CameraDevice.instance.onCameraTexture += OnCameraTexture;
+            OnCameraTexture(CameraDevice.instance.CameraTexture, CameraDevice.instance.cameraTextureData);
         }
 
-        protected void OnDestroy()
+        private void Update()
         {
-            BanubaSDKManager.instance.cameraDevice.onCameraTexture -= OnCameraTexture;
-        }
-
-        void Update()
-        {
-            if (resolution.width != Screen.width || resolution.height != Screen.height) {
+            if (_resolution.width != Screen.width || _resolution.height != Screen.height) {
                 Debug.Log("Resolution changed: " + Screen.width + "x" + Screen.height);
-                resolution.width = Screen.width;
-                resolution.height = Screen.height;
-                OnCameraTexture(BanubaSDKManager.instance.cameraDevice.cameraTexture, BanubaSDKManager.instance.cameraDevice.cameraTextureData);
+                _resolution.width = Screen.width;
+                _resolution.height = Screen.height;
+                OnCameraTexture(CameraDevice.instance.CameraTexture, CameraDevice.instance.cameraTextureData);
             }
         }
 
-        void OnCameraTexture(Texture2D tex, CameraDevice.CameraTextureData cameraTextureData)
+        private void OnDestroy()
+        {
+            CameraDevice.instance.onCameraTexture -= OnCameraTexture;
+        }
+
+        private void OnCameraTexture(Texture2D tex, CameraDevice.CameraTextureData cameraTextureData)
         {
             if (tex == null) {
                 return;
             }
-            image.texture = tex;
-            cameraAngle = cameraTextureData.Angle;
-            camVerticalFlip = false;
+            _image.texture = tex;
+            cameraAngle = cameraTextureData.angle;
+            _camVerticalFlip = false;
             transform.rotation = Quaternion.AngleAxis(cameraAngle, Vector3.back);
 
             UpdatePlaneRect();
         }
 
-        protected void UpdatePlaneRect()
+        private void UpdatePlaneRect()
         {
-            var w = image.texture.width;
-            var h = image.texture.height;
-            getRotated = cameraAngle == 90 || cameraAngle == 270;
+            var w = _image.texture.width;
+            var h = _image.texture.height;
+            _getRotated = cameraAngle == 90 || cameraAngle == 270;
 
-            if (getRotated) {
-                if (camVerticalFlip)
-                    image.uvRect = new Rect(0, 1, 1, -1);
-                else
-                    image.uvRect = new Rect(0, 0, 1, 1);
+            if (_getRotated) {
+                _image.uvRect = _camVerticalFlip
+                                    ? new Rect(0, 1, 1, -1)
+                                    : new Rect(0, 0, 1, 1);
 
                 // rotate rect to correct fit on screen
-                w = image.texture.height;
-                h = image.texture.width;
+                w = _image.texture.height;
+                h = _image.texture.width;
             } else {
-                image.uvRect = new Rect(0, 0, 1, 1);
+                _image.uvRect = new Rect(0, 0, 1, 1);
             }
 
-            var src = new BanubaSDKBridge.bnb_pixel_rect_t();
-            src.x = 0;
-            src.y = 0;
-            src.w = w;
-            src.h = h;
-
-            var dst = new BanubaSDKBridge.bnb_pixel_rect_t();
-            dst.x = 0;
-            dst.y = 0;
-            dst.w = Screen.width;
-            dst.h = Screen.height;
+            var src = new BanubaSDKBridge.bnb_pixel_rect_t {
+                x = 0,
+                y = 0,
+                w = w,
+                h = h
+            };
+            var dst = new BanubaSDKBridge.bnb_pixel_rect_t {
+                x = 0,
+                y = 0,
+                w = Screen.width,
+                h = Screen.height
+            };
 
             var error = IntPtr.Zero;
             var res = BanubaSDKBridge.bnb_fit_rects_aspect_ratio(src, dst, BanubaSDKBridge.bnb_rect_fit_mode_t.bnb_fit_inside, out error);
@@ -103,14 +96,13 @@ namespace BNB
             var scale = (float) dst.h / res.h;
 
             // unrotate rect
-            if (getRotated) {
+            if (_getRotated) {
                 var tmp = res.w;
                 res.w = res.h;
                 res.h = tmp;
             }
 
-            var rt = GetComponent<RectTransform>();
-            rt.sizeDelta = new Vector2(res.w * scale, res.h * scale);
+            _rectTransform.sizeDelta = new Vector2(res.w * scale, res.h * scale);
         }
     }
 }

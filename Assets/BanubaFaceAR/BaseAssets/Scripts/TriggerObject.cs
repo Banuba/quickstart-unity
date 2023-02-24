@@ -17,7 +17,7 @@ namespace BNB
         /// This method keeps in itself check of facial expressions.
         /// </summary>
         /// <param name="frameData"></param>
-        protected void ProcessTriggers(FrameData frameData)
+        private void ProcessTriggers(FrameData frameData)
         {
             var error = IntPtr.Zero;
             bool isOpen = BanubaSDKBridge.bnb_frame_data_get_is_mouth_open(frameData, out error);
@@ -44,17 +44,17 @@ namespace BNB
         /// <summary>
         /// This method sets up features
         /// </summary>
-        public virtual void FeaturesSettings()
+        private void FeaturesSettings()
         {
             var featuresId = BanubaSDKBridge.bnb_recognizer_get_features_id();
             var error = IntPtr.Zero;
-            BanubaSDKBridge.bnb_recognizer_insert_feature(BanubaSDKManager.instance.recognizer, featuresId.open_mouth, out error);
+            BanubaSDKBridge.bnb_recognizer_insert_feature(BanubaSDKManager.instance.Recognizer, featuresId.open_mouth, out error);
             Utils.CheckError(error);
-            BanubaSDKBridge.bnb_recognizer_insert_feature(BanubaSDKManager.instance.recognizer, featuresId.smile, out error);
+            BanubaSDKBridge.bnb_recognizer_insert_feature(BanubaSDKManager.instance.Recognizer, featuresId.smile, out error);
             Utils.CheckError(error);
-            BanubaSDKBridge.bnb_recognizer_insert_feature(BanubaSDKManager.instance.recognizer, featuresId.shifted_brows, out error);
+            BanubaSDKBridge.bnb_recognizer_insert_feature(BanubaSDKManager.instance.Recognizer, featuresId.shifted_brows, out error);
             Utils.CheckError(error);
-            BanubaSDKBridge.bnb_recognizer_insert_feature(BanubaSDKManager.instance.recognizer, featuresId.raised_brows, out error);
+            BanubaSDKBridge.bnb_recognizer_insert_feature(BanubaSDKManager.instance.Recognizer, featuresId.raised_brows, out error);
             Utils.CheckError(error);
         }
         /// <summary>

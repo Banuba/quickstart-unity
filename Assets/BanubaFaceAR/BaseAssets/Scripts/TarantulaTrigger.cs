@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+
 namespace BNB
 {
     /// <summary>
@@ -6,9 +7,17 @@ namespace BNB
     /// </summary>
     public class TarantulaTrigger : TriggerObject
     {
+        private readonly int IsWalking = Animator.StringToHash("IsWalking");
+        private Animator _animator;
+
+        private void Awake()
+        {
+            _animator = GetComponentInChildren<Animator>();
+        }
+
         protected override void OnMouthOpen()
         {
-            gameObject.GetComponentInChildren<Animator>().SetTrigger("IsWalking");
+            _animator.SetTrigger(IsWalking);
         }
     }
 }

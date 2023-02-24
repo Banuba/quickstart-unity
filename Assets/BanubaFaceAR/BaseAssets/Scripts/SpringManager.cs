@@ -1,44 +1,41 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using System.Reflection;
+using UnityEngine;
 
 namespace BNB
 {
     public class SpringManager : MonoBehaviour
     {
-        // DynamicRatio is paramater for activated level of dynamic animation
+        // DynamicRatio is parameter for activated level of dynamic animation
+        [Range(0f, 1f)]
         public float dynamicRatio = 1.0f;
-
-        public float stiffnessForce;
-        public AnimationCurve stiffnessCurve;
-        public float dragForce;
+        [SerializeField]
+        private float dragForce;
+        [SerializeField]
+        private float stiffnessForce;
         public AnimationCurve dragCurve;
-        public SpringBone[] springBones;
+        public AnimationCurve stiffnessCurve;
 
-        void Start()
+        private SpringBone[] springBones;
+
+        private void Start()
         {
+            springBones = GetComponentsInChildren<SpringBone>();
             UpdateParameters();
         }
 
-#if UNITY_EDITOR
-        void Update()
+        private void Update()
         {
-            if (dynamicRatio >= 1.0f)
-                dynamicRatio = 1.0f;
-            else if (dynamicRatio <= 0.0f)
-                dynamicRatio = 0.0f;
-
             UpdateParameters();
         }
-#endif
 
         private void LateUpdate()
         {
-            if (dynamicRatio != 0.0f) {
-                for (int i = 0; i < springBones.Length; i++) {
-                    if (dynamicRatio > springBones[i].threshold) {
-                        springBones[i]
-                            .UpdateSpring();
-                    }
+            if (dynamicRatio == 0.0f) {
+                return;
+            }
+            foreach (var springBone in springBones) {
+                if (dynamicRatio > springBone.threshold) {
+                    springBone.UpdateSpring();
                 }
             }
         }
@@ -51,14 +48,12 @@ namespace BNB
 
         private void UpdateParameter(string fieldName, float baseValue, AnimationCurve curve)
         {
-#if UNITY_EDITOR
             var start = curve.keys[0].time;
             var end = curve.keys[curve.length - 1].time;
-            //var step	= (end - start) / (springBones.Length - 1);
 
             var prop = springBones[0]
                            .GetType()
-                           .GetField(fieldName, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Public);
+                           .GetField(fieldName, BindingFlags.Instance | BindingFlags.Public);
 
             for (int i = 0; i < springBones.Length; i++) {
                 if (!springBones[i].isUseEachBoneForceSettings) {
@@ -66,7 +61,6 @@ namespace BNB
                     prop.SetValue(springBones[i], baseValue * scale);
                 }
             }
-#endif
         }
     }
 

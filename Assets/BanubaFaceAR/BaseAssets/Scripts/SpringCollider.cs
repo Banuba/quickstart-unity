@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 
 namespace BNB
 {
@@ -13,5 +12,4 @@ namespace BNB
             Gizmos.DrawWireSphere(transform.position, radius);
         }
     }
-
 }

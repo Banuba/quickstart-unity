@@ -1,65 +1,31 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.Rendering;
-using System.Runtime.InteropServices;
 
 namespace BNB
 {
     [DisallowMultipleComponent]
-    [RequireComponent(typeof(Camera))]
     public class BanubaSDKManager : MonoBehaviour
     {
-        public static BanubaSDKManager instance = null;
-
-        CameraDevice mCameraDevice;
-        public CameraDevice cameraDevice
-        {
-            get {
-                return mCameraDevice;
-            }
-        private
-            set {
-                mCameraDevice = value;
-            }
-        }
-
-        Recognizer mRecognizer;
-        public Recognizer recognizer
-        {
-            get {
-                return mRecognizer;
-            }
-        private
-            set {
-                mRecognizer = value;
-            }
-        }
-        public int currentFps { get; private set; }
-        private float timer, refresh = 1.0f;
-        public volatile bool surfaceCreated = false;
-
-        const int face_count = 1;
-
         public event Action<FrameData> onRecognitionResult;
 
-        private delegate void SurfaceCreatedRunFn(int index);
-        private void SurfaceCreated(int index)
-        {
-            var error = IntPtr.Zero;
-            Debug.Log("SurfaceCreated call");
-            BanubaSDKBridge.bnb_recognizer_surface_created(recognizer, Screen.width, Screen.height, out error);
-            Utils.CheckError(error);
-            surfaceCreated = true;
-        }
+        public static BanubaSDKManager instance;
+        [SerializeField]
+        private int _maxFaceCount = 1;
+        private const float _refresh = 1.0f;
 
-        void Awake()
+        private float _timer;
+
+        public int CurrentFps { get; private set; }
+        public Recognizer Recognizer { get; private set; }
+
+        private void Awake()
         {
             if (instance == null) {
                 instance = this;
             } else {
-                return;
+                Destroy(gameObject);
             }
 
             var tokenResourceFile = Resources.Load<TextAsset>("BanubaClientToken");
@@ -68,7 +34,6 @@ namespace BNB
             var error = IntPtr.Zero;
             BanubaSDKBridge.bnb_recognizer_env_init(tokenLine, out error);
             Utils.CheckError(error);
-            cameraDevice = GetComponent<CameraDevice>();
 
 #if (UNITY_ANDROID || UNITY_WEBGL) && !UNITY_EDITOR
             var resourcesPath = Application.persistentDataPath;
@@ -76,72 +41,61 @@ namespace BNB
             var resourcesPath = Application.streamingAssetsPath;
 #endif
 
-            recognizer = new Recognizer(resourcesPath + "/BanubaFaceAR/");
+            Recognizer = new Recognizer(resourcesPath + "/BanubaFaceAR/");
+
             // set maximum faces to search
-            BanubaSDKBridge.bnb_recognizer_set_max_faces(recognizer, face_count, out error);
+            BanubaSDKBridge.bnb_recognizer_set_max_faces(Recognizer, _maxFaceCount, out error);
             Utils.CheckError(error);
 
-            // set face search algorithm
-            BanubaSDKBridge.bnb_recognizer_set_face_search_mode(
-                recognizer, BanubaSDKBridge.bnb_face_search_mode_t.bnb_medium, out error);
-            Utils.CheckError(error);
-
-            var issupport = SystemInfo.SupportsRenderTextureFormat(RenderTextureFormat.ARGBHalf);
-            Debug.Log("Beauty ARGBHalf texture support: " + issupport);
-            Debug.Log("Screen size: " + Screen.width + "x" + Screen.height);
+            var isSupporting = SystemInfo.SupportsRenderTextureFormat(RenderTextureFormat.ARGBHalf);
+            Debug.Log($"Beauty ARGBHalf texture support: {isSupporting}");
+            Debug.Log($"Screen size: {Screen.width}x{Screen.height}");
         }
 
-        void Start()
+        private void Update()
         {
-            cameraDevice.onCameraImage += onCameraImage;
-#if UNITY_ANDROID && !UNITY_EDITOR
-            var error = IntPtr.Zero;
-            if (BanubaSDKBridge.bnb_use_gpu_features(out error)) {
-                Utils.CheckError(error);
-
-                Debug.Log("SystemInfo.graphicsMultiThreaded : " + SystemInfo.graphicsMultiThreaded);
-                if (SystemInfo.graphicsDeviceType != GraphicsDeviceType.OpenGLES3) {
-                    Debug.LogError("SystemInfo.graphicsDeviceType != GraphicsDeviceType.OpenGLES3. Please, remove other GL API from player settings");
-                }
-
-                if (SystemInfo.graphicsMultiThreaded) {
-                    GL.IssuePluginEvent(Marshal.GetFunctionPointerForDelegate(new SurfaceCreatedRunFn(SurfaceCreated)), 0);
-                } else {
-                    SurfaceCreated(0);
-                }
-            }
-#endif
+            CalculateFPS();
         }
 
-        void OnDestroy()
+        private void CalculateFPS()
+        {
+            var timelapse = Time.smoothDeltaTime;
+            _timer = _timer <= 0 ? _refresh : _timer -= timelapse;
+            if (_timer <= 0) {
+                CurrentFps = (int) (1f / timelapse);
+            }
+        }
+
+        private void OnDestroy()
         {
             var error = IntPtr.Zero;
             BanubaSDKBridge.bnb_recognizer_env_release(out error);
             Utils.CheckError(error);
         }
 
-        void Update()
+        public static bool processCameraImage(BanubaSDKBridge.bnb_bpc8_image_t cameraImage)
         {
-            float timelapse = Time.smoothDeltaTime;
-            timer = timer <= 0 ? refresh : timer -= timelapse;
-
-            if (timer <= 0) {
-                currentFps = (int) (1f / timelapse);
+            if (instance == null) {
+                return false;
             }
-        }
 
-        void onCameraImage(BanubaSDKBridge.bnb_bpc8_image_t image)
-        {
-            var frameData = new FrameData();
             var error = IntPtr.Zero;
-            BanubaSDKBridge.bnb_frame_data_set_bpc8_img(frameData, ref image, out error);
+            var frameData = BanubaSDKBridge.bnb_frame_data_init(out error);
+            Utils.CheckError(error);
+            BanubaSDKBridge.bnb_frame_data_set_bpc8_img(frameData, ref cameraImage, out error);
             Utils.CheckError(error);
 
-            bool process = BanubaSDKBridge.bnb_recognizer_process_frame_data(recognizer, frameData, out error);
+            BanubaSDKBridge.bnb_recognizer_push_frame_data(instance.Recognizer, frameData, out error);
             Utils.CheckError(error);
-            if (process && onRecognitionResult != null) {
-                onRecognitionResult(frameData);
+
+            var outFrameData = new FrameData();
+            bool process = BanubaSDKBridge.bnb_recognizer_pop_frame_data(instance.Recognizer, outFrameData, out error);
+            Utils.CheckError(error);
+            if (process) {
+                instance.onRecognitionResult?.Invoke(outFrameData);
             }
+
+            return process;
         }
     }
 

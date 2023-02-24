@@ -1,27 +1,19 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-namespace BNB
+namespace BNB.Morphing
 {
     public class Morph : MonoBehaviour
     {
-        public MeshFilter faceMesh;
-        public FaceController faceController;
-        // Start is called before the first frame update
-        void Start()
+        [Header("Children references")]
+        [SerializeField]
+        private MorphDrawIterations _MDI;
+        [SerializeField]
+        private MorphingUVDraw _MUD;
+
+        public void Initialize(FaceController face, MorphDraw morphShape)
         {
-            var camerasObj = gameObject.transform.Find("MorphingCameras");
-            var uvCam = GameObject.Find("MorphingUVCamera").gameObject.GetComponent<RenderToTexture>();
-            var staticCam = camerasObj.transform.Find("StaticPosCamera").gameObject.GetComponent<RenderToTexture>();
-
-
-            var mdi = GetComponentInChildren<MorphDrawIterations>();
-            mdi.uv_morph = uvCam;
-            mdi.static_pos = staticCam;
-            mdi.face = faceController;
-
-            GetComponentInChildren<MorphingUVDraw>().face = faceMesh;
+            _MDI.Initialize(face, morphShape);
+            _MUD.Initialize(face.GetComponentInChildren<MeshFilter>());
         }
     }
 }

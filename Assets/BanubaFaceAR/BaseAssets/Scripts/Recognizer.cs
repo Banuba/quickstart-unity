@@ -4,25 +4,25 @@ namespace BNB
 {
     public class Recognizer
     {
-        IntPtr context;
+        private IntPtr _context;
 
         public Recognizer(string resourcesPath)
         {
             IntPtr error = IntPtr.Zero;
-            context = BanubaSDKBridge.bnb_recognizer_init("file:///" + resourcesPath, "", "", false, out error);
+            _context = BanubaSDKBridge.bnb_recognizer_init("file:///" + resourcesPath, false, out error);
             Utils.CheckError(error);
         }
 
         ~Recognizer()
         {
             var error = IntPtr.Zero;
-            BanubaSDKBridge.bnb_recognizer_release(context, out error);
+            BanubaSDKBridge.bnb_recognizer_release(_context, out error);
             Utils.CheckError(error);
         }
 
         public static implicit operator IntPtr(Recognizer recognizer)
         {
-            return recognizer.context;
+            return recognizer._context;
         }
     }
 

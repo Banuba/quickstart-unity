@@ -1,35 +1,39 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEditor;
 
 namespace BNB
 {
     public class EffectManager : MonoBehaviour
     {
-        public Effect getEffect(int index)
-        {
-            return Effects[index];
-        }
+        public static EffectManager instance;
 
         [SerializeField]
-        private List<Effect> _Effects;
+        private List<Effect> _effects;
+        [SerializeField]
+        private Effect _emptyEffect;
+        private Effect _currentEffect;
 
-        public List<Effect> Effects
+        public List<Effect> Effects => _effects;
+
+        private void Awake()
         {
-            get {
-                return _Effects;
+            if (instance == null) {
+                instance = this;
             }
+            _currentEffect = _emptyEffect;
         }
 
-        [SerializeField] private GameObject _EmptyEffect;
-
-        public Effect EmptyEffect
+        public void SpawnEffect(Effect effect)
         {
-            get {
-                var effect = _EmptyEffect?.GetComponent<Effect>();
-                return effect;
+            if (_emptyEffect != null) {
+                Destroy(_emptyEffect.gameObject);
             }
+            if (_currentEffect != null) {
+                DestroyImmediate(_currentEffect.gameObject);
+            }
+            Effect newEffect = Instantiate(effect, transform);
+            newEffect.gameObject.SetActive(true);
+            _currentEffect = newEffect;
         }
     }
 }

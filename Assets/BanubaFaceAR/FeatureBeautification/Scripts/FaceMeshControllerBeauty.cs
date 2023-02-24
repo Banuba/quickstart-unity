@@ -1,19 +1,15 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-namespace BNB
+﻿namespace BNB.Beautification
 {
     public class FaceMeshControllerBeauty : FaceMeshController
     {
-        public void setCoeffParam(string paramName, float val)
+        public void SetCoeffParam(string paramName, float value)
         {
-            meshMaterial.SetFloat(paramName, val);
+            _meshMaterial.SetFloat(paramName, value);
         }
 
-        public void setBeautyFeatureEnabled(string paramName, int val)
+        public void SetBeautyFeatureEnabled(string paramName, int value)
         {
-            meshMaterial.SetInt(paramName, val);
+            _meshMaterial.SetInt(paramName, value);
         }
     }
 }

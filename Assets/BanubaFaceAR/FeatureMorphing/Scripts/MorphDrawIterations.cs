@@ -1,47 +1,56 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using UnityEngine;
+﻿using UnityEngine;
 
-namespace BNB
+namespace BNB.Morphing
 {
     public class MorphDrawIterations : MonoBehaviour
     {
-        public FaceController face;
-        public GameObject MorphPrefab;
+        [Header("References")]
+        [SerializeField]
+        private RenderToTexture _UVMorph;
+        [SerializeField]
+        private Texture _staticPos;
 
-        public RenderToTexture uv_morph;
-        public RenderToTexture static_pos;
+        private FaceController _face;
+        private MorphDraw _morphShape;
+
+        // Cached components
+        private Transform _transform;
+        private Transform _faceTransform;
+
+        private void Awake()
+        {
+            _transform = transform;
+        }
 
         private void OnEnable()
         {
-            Init();
+            BanubaSDKManager.instance.onRecognitionResult += UpdateTransform;
         }
 
-        private void Init()
+        private void OnDisable()
         {
+            BanubaSDKManager.instance.onRecognitionResult -= UpdateTransform;
+        }
+
+        public void Initialize(FaceController face, MorphDraw morphVariant)
+        {
+            _face = face;
+            _faceTransform = _face.gameObject.transform;
+            _morphShape = morphVariant;
+
             for (var i = 0; i < 9; ++i) {
-                var prefab = GameObject.Instantiate(MorphPrefab, gameObject.transform);
-
-                var md_component = prefab.GetComponent<MorphDraw>();
-
-                if (md_component == null) {
-                    //error
+                var morph = Instantiate(_morphShape, gameObject.transform);
+                if (morph != null) {
+                    morph.Create(_UVMorph, _staticPos, i);
                 }
-                md_component.iteration = i;
-                md_component.static_pos = static_pos;
-                md_component.uv_morph = uv_morph;
-
-                md_component.Init();
             }
         }
 
-        private void Update()
+        private void UpdateTransform(FrameData data)
         {
-            transform.localScale = face.gameObject.transform.localScale;
-            transform.position = face.gameObject.transform.position;
-            transform.rotation = face.gameObject.transform.rotation;
+            _transform.localScale = _faceTransform.localScale;
+            _transform.position = _faceTransform.position;
+            _transform.rotation = _faceTransform.rotation;
         }
     }
 }

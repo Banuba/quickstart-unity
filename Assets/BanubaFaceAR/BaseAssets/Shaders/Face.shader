@@ -1,10 +1,4 @@
-﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
-
-// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
-
-// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
-
-Shader "Unlit/Face"
+﻿Shader "Unlit/Face"
 {
     Properties
     {
@@ -12,16 +6,16 @@ Shader "Unlit/Face"
     }
     SubShader
     {
-        Tags { "RenderType"="Opaque" }
-        LOD 100
+        Tags
+        {
+            "RenderType"="Opaque"
+        }
 
         Pass
         {
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
-            // make fog work
-            #pragma multi_compile_fog
 
             #include "UnityCG.cginc"
 
@@ -45,13 +39,13 @@ Shader "Unlit/Face"
             int _TextureRotate; // bool
             int _TextureYFlip; // bool
 
-            v2f vert (appdata v)
+            v2f vert(appdata v)
             {
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
 
                 float4 texvert = mul(_TextureMVP, v.vertex);
-                float2 uv = ((texvert.xy / texvert.w) * 0.5 + 0.5);
+                float2 uv = texvert.xy / texvert.w * 0.5 + 0.5;
 
                 uv = TRANSFORM_TEX(uv, _MainTex);
                 uv.x = abs(_TextureYFlip - uv.x);
@@ -66,20 +60,12 @@ Shader "Unlit/Face"
                 {
                     o.uv = uv;
                 }
-
-                // float2 uv = (o.vertex.xy / o.vertex.w) * 0.5 + 0.5;
-                // o.uv = TRANSFORM_TEX(uv, _MainTex);
-
-                UNITY_TRANSFER_FOG(o,o.vertex);
                 return o;
             }
 
-            fixed4 frag (v2f i) : SV_Target
+            fixed4 frag(v2f i) : SV_Target
             {
-                // sample the texture
                 fixed4 col = tex2D(_MainTex, i.uv);
-                // apply fog
-                UNITY_APPLY_FOG(i.fogCoord, col);
                 return col;
             }
             ENDCG

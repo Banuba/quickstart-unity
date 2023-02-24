@@ -1,12 +1,10 @@
 ﻿using System;
-using System.IO;
 using System.Collections.Generic;
 using UnityEngine;
 
-
 namespace BNB
 {
-    [System.Serializable]
+    [Serializable]
     public class ResourcesJSON
     {
         public List<string> resources = new List<string>();

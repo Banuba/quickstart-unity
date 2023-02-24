@@ -4,10 +4,14 @@
     {
         _MainTex ("Texture", 2D) = "white" {}
     }
-        SubShader {
-        Tags { "Queue" = "Geometry-1" }
-        ColorMask 0 
+    SubShader
+    {
+        Tags
+        {
+            "Queue" = "Geometry-1"
+        }
+        ColorMask 0
         ZWrite On
-        Pass { }
+        Pass {}
     }
 }

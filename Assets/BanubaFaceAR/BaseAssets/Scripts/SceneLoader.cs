@@ -1,48 +1,49 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using System.Collections;
 using System.IO;
-using UnityEngine.UI;
+using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 namespace BNB
 {
     public class SceneLoader : MonoBehaviour
     {
-        private bool loadScene = false;
+        private const int _sceneToLoadIndex = 1;
 
         [SerializeField]
-        private string scene;
+        private string _scene;
         [SerializeField]
-        private Text loadingText;
+        private Text _loadingText;
+        private bool _loadScene;
 
-        // Updates once per frame
-        void Update()
+        private void Update()
         {
-            if (loadScene == false) {
-                loadScene = true;
-                loadingText.text = "Loading...";
+            if (_loadScene == false) {
+                _loadScene = true;
+                _loadingText.text = "Loading...";
                 StartCoroutine(LoadScene());
             }
 
-            if (loadScene == true) {
-                loadingText.color = new Color(loadingText.color.r, loadingText.color.g, loadingText.color.b, Mathf.PingPong(Time.time, 1));
+            if (_loadScene) {
+                _loadingText.color = new Color(_loadingText.color.r, _loadingText.color.g, _loadingText.color.b, Mathf.PingPong(Time.time, 1));
             }
         }
 
-        IEnumerator LoadScene()
+        private IEnumerator LoadScene()
         {
 #if (UNITY_ANDROID || UNITY_WEBGL) && !UNITY_EDITOR
             yield return CopyResourcesToPersistent();
 #endif
 
-            AsyncOperation async = SceneManager.LoadSceneAsync(scene);
+            AsyncOperation async = SceneManager.LoadSceneAsync(_sceneToLoadIndex);
             while (!async.isDone) {
                 yield return null;
             }
         }
 
 #if (UNITY_ANDROID || UNITY_WEBGL) && !UNITY_EDITOR
-        IEnumerator CopyResourcesToPersistent()
+        private IEnumerator CopyResourcesToPersistent()
         {
             // copy resources from assets on Android
             string src = Application.streamingAssetsPath + "/BanubaFaceAR/";
@@ -66,9 +67,9 @@ namespace BNB
 
                 if (!File.Exists(to)) {
                     Debug.Log("copying from " + from + " to " + to);
-                    WWW www = new WWW(from);
-                    yield return www;
-                    File.WriteAllBytes(to, www.bytes);
+                    UnityWebRequest www = UnityWebRequest.Get(from);
+                    yield return www.SendWebRequest();
+                    File.WriteAllBytes(to, www.downloadHandler.data);
                 }
             }
         }

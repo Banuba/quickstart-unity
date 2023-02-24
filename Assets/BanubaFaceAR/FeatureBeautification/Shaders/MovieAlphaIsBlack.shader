@@ -9,11 +9,11 @@ Shader "Unlit/MovieAlphaIsBlack"
         _EnableLookUpEyes ("Beaty eyes on/off", Int) = 1
         _LookUpEyesTexture ("Beaty eyes", 2D) = "white" {}
         _EnableLookUpTeeth ("Beaty teeth on/off", Int) = 1
-        _LookUpTeethTexture ("Beaty teeth", 2D) = "white" 
+        _LookUpTeethTexture ("Beaty teeth", 2D) = "white"
         _EnableEyesFlare ("Eyes flare on/off", Int) = 1
         _EyesFlareTexture ("Eyes flare", 2D) = "black" {}
         _EnableEyesBlush ("Blush on/off", Int) = 1
-        _EyesBlushTexture ("Blush", 2D) = "black" 
+        _EyesBlushTexture ("Blush", 2D) = "black"
         _EnableMakeup ("Makeup on/off", Int) = 1
         _MakeupTexture ("Makeup", 2D) = "white" {}
         _LookUpMaskTexture ("Beaty mask", 2D) = "white" {}
@@ -25,8 +25,11 @@ Shader "Unlit/MovieAlphaIsBlack"
     }
     SubShader
     {
-        Tags { "Queue" = "Transparent" }
-        
+        Tags
+        {
+            "Queue" = "Transparent"
+        }
+
         Pass
         {
             CGPROGRAM
@@ -37,7 +40,7 @@ Shader "Unlit/MovieAlphaIsBlack"
 
             struct appdata
             {
-                    float4 vertex : POSITION;
+                float4 vertex : POSITION;
                 float4 normal : NORMAL;
                 float2 uv : TEXCOORD0;
             };
@@ -63,7 +66,8 @@ Shader "Unlit/MovieAlphaIsBlack"
             float _EyesWhiteningCoeff;
 
 
-            v2f vert(appdata v) {
+            v2f vert(appdata v)
+            {
                 v2f o;
 
                 o.vertex = UnityObjectToClipPos(v.vertex);
@@ -87,7 +91,7 @@ Shader "Unlit/MovieAlphaIsBlack"
                 }
 
                 o.uv.y = 1.0 - o.uv.y;
-                
+
                 //------- UV AVERAGING -------
                 const float dx = 1.0 - _ScreenParams.z;
                 const float dy = 1.0 - _ScreenParams.w;
@@ -103,7 +107,7 @@ Shader "Unlit/MovieAlphaIsBlack"
                 o.uvAveraging[1].xy = o.face_uv + float2(sOfssetXneg, sOffsetYpos);
                 o.uvAveraging[2].xy = o.face_uv + float2(sOffsetXpos, sOffsetYneg);
                 o.uvAveraging[3].xy = o.face_uv + float2(sOffsetXpos, sOffsetYpos);
-               
+
                 float2 deltaZW = float2(dx, dy);
 
                 o.uvAveraging[0].zw = o.face_uv + float2(-deltaZW.x, -deltaZW.y);
@@ -138,12 +142,17 @@ Shader "Unlit/MovieAlphaIsBlack"
                 fixed4 maskColor = tex2D(_LookUpMaskTexture, i.uv);
                 float4 res = tex2D(_MainTex, i.face_uv);;
 
-                res = lerp(res, SHARPEN_RGB(res, maskColor.g * _TeethSharpenIntensity, i.uvAveraging, _MainTex),_EnableSharpenTeeth);
-                res = lerp(res, SHARPEN_RGB(res, maskColor.b * _EyesSharpenIntensity, i.uvAveraging, _MainTex), _EnableSharpenEyes);
-                res = lerp(res, WHITENING(res, maskColor.g * _TeethWhiteningCoeff, _LookUpTeethTexture), _EnableLookUpTeeth);
-                res = lerp(res,WHITENING(res, maskColor.b * _EyesWhiteningCoeff, _LookUpEyesTexture), _EnableLookUpEyes);
-                res += lerp(float4(0,0,0,0), float4(tex2D(_EyesFlareTexture, i.uv).xyz, 0.0),_EnableEyesFlare);
-                res = lerp(res, SOFT_SKIN_RGB(res, maskColor.r * _SkinSoftIntensity, i.uvAveraging, _MainTex), _EnableSoftSkin);
+                res = lerp(res, SHARPEN_RGB(res, maskColor.g * _TeethSharpenIntensity, i.uvAveraging, _MainTex),
+                           _EnableSharpenTeeth);
+                res = lerp(res, SHARPEN_RGB(res, maskColor.b * _EyesSharpenIntensity, i.uvAveraging, _MainTex),
+                           _EnableSharpenEyes);
+                res = lerp(res, WHITENING(res, maskColor.g * _TeethWhiteningCoeff, _LookUpTeethTexture),
+                           _EnableLookUpTeeth);
+                res = lerp(res, WHITENING(res, maskColor.b * _EyesWhiteningCoeff, _LookUpEyesTexture),
+                           _EnableLookUpEyes);
+                res += lerp(float4(0, 0, 0, 0), float4(tex2D(_EyesFlareTexture, i.uv).xyz, 0.0), _EnableEyesFlare);
+                res = lerp(res, SOFT_SKIN_RGB(res, maskColor.r * _SkinSoftIntensity, i.uvAveraging, _MainTex),
+                           _EnableSoftSkin);
                 res = lerp(res, SOFT_LIGHT(res, tex2D(_EyesBlushTexture, i.uv)), _EnableEyesBlush);
 
                 float _Threshold = 0.1;
@@ -152,8 +161,8 @@ Shader "Unlit/MovieAlphaIsBlack"
 
                 float4 makeup = tex2D(_MakeupTexture, i.uv);
                 makeup.a = smoothstep(_Threshold, _Threshold + _Softness, 0.333 * (makeup.r + makeup.g + makeup.b));
-                res.xyz = lerp(res.xyz,lerp(res.xyz, makeup.xyz, makeup.w), _EnableMakeup);
-                
+                res.xyz = lerp(res.xyz, lerp(res.xyz, makeup.xyz, makeup.w), _EnableMakeup);
+
                 return res;
             }
             ENDCG

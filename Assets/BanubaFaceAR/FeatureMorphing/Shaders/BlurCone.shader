@@ -15,7 +15,7 @@
 		v2f o; 
 		o.pos = UnityObjectToClipPos(v.vertex);
 
-		o.uv = v.texcoord - _BlurOffsets.xy * _MainTex_TexelSize.xy; // hack, see BlurEffect.cs for the reason for this. let's make a new blur effect soon
+		o.uv = v.texcoord - _BlurOffsets.xy * _MainTex_TexelSize.xy;
 #ifdef UNITY_SINGLE_PASS_STEREO
 		// we need to keep texel size correct after the uv adjustment.
 		o.taps[0] = UnityStereoScreenSpaceUVAdjust(o.uv + _MainTex_TexelSize * _BlurOffsets.xy * (1.0f / _MainTex_ST.xy), _MainTex_ST);
