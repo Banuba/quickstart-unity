@@ -12,11 +12,23 @@ You can store the token within the app.
 
 Feel free to [contact us](https://docs.banuba.com/face-ar-sdk-v1/support) if you have any questions.
 
-### Getting Started
+### How To Run 
 
-1. Download the latest [release](https://github.com/Banuba/quickstart-unity/releases) and open it import it to your project using Unity
-2. Put your Client Token to the [Assets/Resources/BanubaClientToken.txt](Assets/BanubaFaceAR/BaseAssets/Resources/BanubaClientToken.txt)
+1. Clone the repository
+2. Download the latest libs package [BanubaSDK-vX.X.X-libs.unitypackage
+](https://github.com/Banuba/quickstart-unity/releases) and import it using Unity.
+3. Put your Client Token to the [Assets/Resources/BanubaClientToken.txt](Assets/Resources/BanubaClientToken.txt)
+4. Open the Assets/BanubaFaceAR/Demo and click Run.
+
+### How To Import To Your Project 
+
+1. Download the latest assets package [BanubaSDK-vX.X.X-import.unitypackage
+](https://github.com/Banuba/quickstart-unity/releases) and import it using Unity.
+2. Put your Client Token to the [Assets/Resources/BanubaClientToken.txt](Assets/Resources/BanubaClientToken.txt)
 3. Open the Assets/BanubaFaceAR/Demo and click Run.
+
+### Important
+You need to add [LoaderScene](Assets/BanubaFaceAR/BaseAssets/Scenes/LoaderScene.unity) for Windows and Android Build. 
 
 ### Docs
 You can find more info [here](https://docs.banuba.com/face-ar-sdk-v1/unity/unity_getting_started)
