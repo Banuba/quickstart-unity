@@ -9,7 +9,7 @@ EditorBuildSettings:
     path: Assets/BanubaFaceAR/BaseAssets/Scenes/LoaderScene.unity
     guid: 4866e66c1aab74b7bae842e1bac56c84
   - enabled: 0
-    path: Assets/BanubaFaceAR/BaseAssets/Scenes/SampleScene.unity
+    path: Assets/Scenes/SampleScene.unity
     guid: 9fc0d4010bbf28b4594072e72b8655ab
   - enabled: 0
     path: Assets/BanubaFaceAR/BaseAssets/Scenes/MinimalScene.unity
