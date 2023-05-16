@@ -30,7 +30,7 @@ Feel free to [contact us](https://docs.banuba.com/face-ar-sdk-v1/support) if you
 ### Important
 You need to add [LoaderScene](Assets/BanubaFaceAR/BaseAssets/Scenes/LoaderScene.unity) for Windows and Android Build. 
 
-###Notes
+### Notes
 BanubaSDK-quickstart.unitypackage and BanubaSDK-import.unitypackage containst other scene:
 - BanubaFaceAR/Demo/BanubaSDKDemo.unity - base demo example with all features
 - BanubaFaceAR/FeatureActionUnits/Scenes/ActionUnitsScene.unity - action units feature example
