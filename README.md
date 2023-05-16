@@ -18,7 +18,7 @@ Feel free to [contact us](https://docs.banuba.com/face-ar-sdk-v1/support) if you
 2. Download the latest libs package [BanubaSDK-quickstart.unitypackage
 ](https://github.com/Banuba/quickstart-unity/releases) and import it using Unity.
 3. Put your Client Token to the [Assets/Resources/BanubaClientToken.txt](Assets/Resources/BanubaClientToken.txt)
-4. Open the Assets/BanubaFaceAR/Demo and click Run.
+4. Open the Assets/Scenes/SampleScene and click Run.
 
 ### How To Import To Your Project 
 
@@ -29,6 +29,15 @@ Feel free to [contact us](https://docs.banuba.com/face-ar-sdk-v1/support) if you
 
 ### Important
 You need to add [LoaderScene](Assets/BanubaFaceAR/BaseAssets/Scenes/LoaderScene.unity) for Windows and Android Build. 
+
+###Notes
+BanubaSDK-quickstart.unitypackage and BanubaSDK-import.unitypackage containst other scene:
+- BanubaFaceAR/Demo/BanubaSDKDemo.unity - base demo example with all features
+- BanubaFaceAR/FeatureActionUnits/Scenes/ActionUnitsScene.unity - action units feature example
+- BanubaFaceAR/FeatureBeautification/Scenes/BeautificationScene.unity - beautification based on luts
+- BanubaFaceAR/FeatureMorphing/Scenes/MorphingScene.unity - morphing feature example
+- BanubaFaceAR/FeatureSegmentation/Scenes/SegmentationExample.unity - all segmentation features example
+- BanubaFaceAR/Makeup/MakeupExample.unity - makeup api example
 
 ### Docs
 You can find more info [here](https://docs.banuba.com/face-ar-sdk-v1/unity/unity_getting_started)
