@@ -28,16 +28,18 @@ Feel free to [contact us](https://docs.banuba.com/face-ar-sdk-v1/support) if you
 3. Open the Assets/BanubaFaceAR/Demo and click Run.
 
 ### Important
-You need to add [LoaderScene](Assets/BanubaFaceAR/BaseAssets/Scenes/LoaderScene.unity) for Windows and Android Build. 
+You need to add BanubaFaceAR/BaseAssets/Scenes/LoaderScene.unity for Windows and Android Build if you use BanubaSDK-import.unitypackage.
 
 ### Notes
-BanubaSDK-quickstart.unitypackage and BanubaSDK-import.unitypackage containst other scene:
-- BanubaFaceAR/Demo/BanubaSDKDemo.unity - base demo example with all features
+BanubaSDK-quickstart.unitypackage and BanubaSDK-import.unitypackage contains other scenes:
 - BanubaFaceAR/FeatureActionUnits/Scenes/ActionUnitsScene.unity - action units feature example
 - BanubaFaceAR/FeatureBeautification/Scenes/BeautificationScene.unity - beautification based on luts
 - BanubaFaceAR/FeatureMorphing/Scenes/MorphingScene.unity - morphing feature example
 - BanubaFaceAR/FeatureSegmentation/Scenes/SegmentationExample.unity - all segmentation features example
 - BanubaFaceAR/Makeup/MakeupExample.unity - makeup api example
+
+Also BanubaSDK-import.unitypackage contains:
+- BanubaFaceAR/Demo/BanubaSDKDemo.unity - base demo example with all features
 
 ### Docs
 You can find more info [here](https://docs.banuba.com/face-ar-sdk-v1/unity/unity_getting_started)

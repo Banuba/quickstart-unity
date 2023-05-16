@@ -69,3 +69,13 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
+
+#Banuba
+/Assets/BanubaFaceAR/
+/Assets/BanubaFaceAR.meta
+/Assets/StreamingAssets/
+/Assets/StreamingAssets.meta
+/Assets/Resources/
+/Assets/Resources.meta
+/Assets/Plugins/
+/Assets/Plugins.meta
