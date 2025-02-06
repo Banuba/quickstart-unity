@@ -1,4 +1,4 @@
-[![](https://www.banuba.com/hubfs/Banuba_November2018/Images/Banuba%20SDK.png)](https://docs.banuba.com/face-ar-sdk-v1/unity/unity_overview)
+[![](https://www.banuba.com/hubfs/Banuba_November2018/Images/Banuba%20SDK.png)](https://docs.banuba.com/far-sdk/tutorials/unity/overview)
 
 ## Face AR SDK for Unity example  
   
@@ -10,7 +10,7 @@ Before you commit to a license, you are free to test all the features of the SDK
 We will get back to you with the trial token.
 You can store the token within the app.  
 
-Feel free to [contact us](https://docs.banuba.com/face-ar-sdk-v1/support) if you have any questions.
+Feel free to [contact us](https://docs.banuba.com/far-sdk/support) if you have any questions.
 
 ### How To Run 
 
@@ -43,4 +43,4 @@ Also BanubaSDK-import.unitypackage contains:
 - BanubaFaceAR/Demo/BanubaSDKDemo.unity - base demo example with all features
 
 ### Docs
-You can find more info [here](https://docs.banuba.com/face-ar-sdk-v1/unity/unity_getting_started)
+You can find more info [here](https://docs.banuba.com/far-sdk/tutorials/unity/basic_integration)
