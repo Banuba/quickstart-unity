@@ -166,7 +166,7 @@ PlayerSettings:
     Android: com.banuba.sdk.unity
   buildNumber: {}
   AndroidBundleVersionCode: 1
-  AndroidMinSdkVersion: 21
+  AndroidMinSdkVersion: 26
   AndroidTargetSdkVersion: 0
   AndroidPreferredInstallLocation: 1
   aotOptions: 
